@@ -1,0 +1,53 @@
+[
+  {
+    "listName": "Поставщик фруктов 'агро среда'",
+    "itemCount": 26,
+    "items": []
+  },
+  {
+    "listName": "Молочка, Максим",
+    "itemCount": 18,
+    "items": []
+  },
+  {
+    "listName": "Алкоголь от миянс",
+    "itemCount": 52,
+    "items": []
+  },
+  {
+    "listName": "Алкоголь от ООО 'Креста'",
+    "itemCount": 55,
+    "items": []
+  },
+  {
+    "listName": "Заказ Саша",
+    "itemCount": 38,
+    "items": []
+  },
+  {
+    "listName": "Стандартный недельный заказ",
+    "itemCount": 63,
+    "items": [
+      {
+        "productName": "Винстон компакт",
+        "barcode": "3753298600661"
+      },
+      {
+        "productName": "Винстон компакт 100",
+        "barcode": "3753328477542"
+      },
+      {
+        "productName": "Зажигалка BIG J3",
+        "barcode": "4537812617224"
+      },
+      {
+        "productName": "Зажигалка Ангара",
+        "barcode": "4540745934389"
+      },
+      {
+        "productName": "Сигареты Винстон красный",
+        "barcode": "905151847861"
+      }
+    ]
+  }
+]

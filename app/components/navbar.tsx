@@ -1,5 +1,5 @@
-import Link from "next/link";
-import Image from "next/image";
+import Link from 'next/link'
+import Image from 'next/image'
 
 export default function Navbar() {
   return (
@@ -21,9 +21,8 @@ export default function Navbar() {
             alt="File icon"
             width={36}
             height={36}
-            className="ml-1 inline-flex w-full h-full"
+            className="ml-1 inline-flex w-auto h-auto"
           />
-          
         </Link>
 
         <div className="flex flex-1 items-center justify-end">
@@ -58,5 +57,5 @@ export default function Navbar() {
         </div>
       </div>
     </header>
-  );
+  )
 }

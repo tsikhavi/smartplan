@@ -1,37 +1,28 @@
-import type { Metadata } from "next";
-import localFont from "next/font/local";
-import "./globals.css";
-import Navbar from "./components/navbar";
-
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
-
-export const metadata: Metadata = {
-  title: "Smart Plan",
-  description: "Smart Plan MVP",
-};
+'use client'
+import './globals.css'
+import Navbar from './components/navbar'
+import Footer from './components/footer'
+import { inter, interRegular } from './fonts/fonts'
+import { usePathname } from 'next/navigation'
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
+  const pathname = usePathname()
+
+  const isDashboardRoute = pathname?.startsWith('/dashboard')
+
   return (
-    <html lang="en">
+    <html lang="ru">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${inter.variable} ${interRegular.variable} antialiased w-full text-base overflow-x-hidden`}
       >
-        <Navbar />
+        {!isDashboardRoute && <Navbar />}
         {children}
+        {!isDashboardRoute && <Footer />}
       </body>
     </html>
-  );
+  )
 }
