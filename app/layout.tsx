@@ -15,7 +15,7 @@ export default function RootLayout({
   const isDashboardRoute = pathname?.startsWith('/dashboard')
 
   return (
-    <html lang="ru">
+    <html lang="ru" suppressHydrationWarning>
       <body
         className={`${inter.variable} ${interRegular.variable} antialiased w-full text-base overflow-x-hidden`}
       >

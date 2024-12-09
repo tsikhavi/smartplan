@@ -1,46 +1,70 @@
 'use client'
-import Link from 'next/link'
-import Image from 'next/image'
+
+import { useState } from 'react'
+import { fetchTableData } from '../lib/helpers'
+import { TableRow } from '../lib/validation'
 import { DateRangeInput } from './daterangeinput'
 import SelectWithIcon from './start/selectwithicon'
-import { useState } from 'react'
+import Link from 'next/link'
+import Image from 'next/image'
+import Alert from './alert'
+import { calculateDateDifference } from '../lib/utils'
 
-export default function DashboardNavbar() {
-  // State to store the selected date range
-  const [dateRange, setDateRange] = useState({ from: '', to: '' })
+type DashboardNavbarProps = {
+  updateTables: (data: TableRow[]) => void
+}
 
-  // Function to handle date range change
-  const handleDateChange = (range: { from: string; to: string }) => {
+type DateRange = {
+  from: string
+  to: string
+}
+
+export default function DashboardNavbar({
+  updateTables,
+}: DashboardNavbarProps) {
+  const [dateRange, setDateRange] = useState<DateRange>({ from: '', to: '' })
+  const [alertMessage, setAlertMessage] = useState<{
+    type: 'success' | 'error'
+    text: string
+  } | null>(null)
+
+  const handleDateChange = async (range: DateRange) => {
     setDateRange(range)
-    // Fetch or re-fetch data using the selected date range
-    fetchData(range)
-  }
 
-  // Fetch or re-fetch data (placeholder implementation)
-  const fetchData = async (range: { from: string; to: string }) => {
-    try {
-      const response = await fetch(
-        `/api/data?from=${range.from}&to=${range.to}`
+    const difference = calculateDateDifference(range.from, range.to)
+    if (difference !== null) {
+      console.log(`Диапазон ${difference}`)
+    } else {
+      console.log(
+        'Не удалось рассчитать количество дней: неверный диапазон дат.'
       )
-      const data = await response.json()
-      console.log('Fetched data:', data)
-      // Update your tables, charts, or curves with the new data
-      updateTables(data)
-    } catch (error) {
-      console.error('Error fetching data:', error)
     }
-  }
 
-  // Function to update tables (placeholder)
-  const updateTables = (data: any[]) => {
-    // Logic to update tables or other UI components
-    console.log('Update tables with:', data)
+    try {
+      const data = await fetchTableData(range)
+
+      if (data) {
+        localStorage.setItem('tableData', JSON.stringify(data))
+        localStorage.setItem('dateRange', JSON.stringify(range))
+        localStorage.setItem('diapazon', JSON.stringify(difference))
+        updateTables(data)
+        setAlertMessage({
+          type: 'success',
+          text: `Загрузки данных с ${range.from} по ${range.to}.`,
+        })
+      }
+    } catch (error) {
+      console.error('Ошибка при извлечении данных таблицы:', error)
+      setAlertMessage({
+        type: 'error',
+        text: 'Не удалось загрузить данные. Повторите попытку позже.',
+      })
+    }
   }
 
   return (
     <header className="bg-[#404950] px-2">
       <div className="mx-auto flex h-8 w-full items-center justify-between">
-        {/* Left Section: User Info */}
         <div className="flex items-center">
           <p className="text-xs text-white mx-2">Магазин</p>
           <SelectWithIcon
@@ -48,9 +72,7 @@ export default function DashboardNavbar() {
             name="shop"
             options={['Магазин мираж', 'Магазин продукты']}
           />
-          <p className="text-xs text-white ml-8 mr-2">
-            Период фактических данных
-          </p>
+          <p className="text-xs text-white ml-8 mr-2">Период данных</p>
           <DateRangeInput onChange={handleDateChange} />
           <Image
             src="/Calendar_Days.svg"
@@ -59,18 +81,12 @@ export default function DashboardNavbar() {
             height={6}
             className="object-cover w-fit mx-auto h-fit"
           />
-          <p className="text-xs text-white ml-8 mr-2">Показатели</p>
-          <SelectWithIcon
-            id="indexes"
-            name="indexes"
-            options={['Общие', 'Средние']}
-          />
         </div>
 
         {/* Right Section: Navbar Items */}
         <div className="flex items-center gap-4">
           <Link
-            href="/"
+            href="/dashboard/start"
             className="text-white text-xs inline-flex items-center"
           >
             <span className="mx-2">Дмитрий К.</span>
@@ -78,13 +94,30 @@ export default function DashboardNavbar() {
               aria-hidden
               src="/User_Circle.svg"
               alt="Settings Icon"
+              width={12}
+              height={12}
+              className="inline-flex w-auto h-auto"
+            />
+          </Link>
+          <Link href="/">
+            <Image
+              aria-hidden
+              src="/SmartPlan.svg"
+              alt="Settings Icon"
               width={20}
-              height={20}
+              height={12}
               className="inline-flex w-auto h-auto"
             />
           </Link>
         </div>
       </div>
+
+      {alertMessage && (
+        <Alert
+          color={alertMessage.type === 'success' ? 'malachite' : 'red'}
+          message={alertMessage.text}
+        />
+      )}
     </header>
   )
 }

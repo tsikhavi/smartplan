@@ -39,10 +39,10 @@ export const DateRangeInput: React.FC<DateRangeInputProps> = ({ onChange }) => {
     setShowPicker(false)
 
     if (range) {
-      const from = format(range.from!, 'yyyy-MM-dd', { locale: ru }) // API-friendly format
+      const from = format(range.from!, 'dd-MM-yyyy', { locale: ru }) // API-friendly format
       const to = range.to
-        ? format(range.to, 'yyyy-MM-dd', { locale: ru })
-        : format(today, 'yyyy-MM-dd', { locale: ru })
+        ? format(range.to, 'dd-MM-yyyy', { locale: ru })
+        : format(today, 'dd-MM-yyyy', { locale: ru })
 
       // Trigger the callback to notify parent component
       onChange({ from, to })

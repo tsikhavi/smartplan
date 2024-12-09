@@ -18,7 +18,13 @@ export default function Footer() {
               />
             </span>
             <span className="inline pl-2 font-light hover:underline hover:cursor-pointer">
-              dmitriy.kyrdumov@gmail.com
+              <a
+                href="mailto:dmitriy.kyrdumov@gmail.com"
+                target="_blank"
+                title="Напишите почту"
+              >
+                dmitriy.kyrdumov@gmail.com
+              </a>
             </span>
           </p>
           <p className="pl-[8.5ch] text-sm">
@@ -32,13 +38,16 @@ export default function Footer() {
                 className="inline-flex"
               />
             </span>
-            <span className=" inline pl-2 font-light hover:underline hover:cursor-pointer">
-              @kurdumoff
+
+            <span className=" inline pl-1 font-light hover:underline hover:cursor-pointer">
+              <a href="https://t.me/kurdumoff" target="_blank" title="Телеграм">
+                @kurdumoff
+              </a>
             </span>
           </p>
         </div>
         <div className="-my-20 mx-auto underline">
-          <p className="text-sm leading-normal tracking-normal">
+          <p className="text-sm leading-normal text-justify tracking-normal">
             Сейчас сервис находиться в разработке. Если вы планируете им
             пользоваться, или хотите присоединится к разработке - пожалуйста
             напишите нам об этом. Все пожелания по функционалу категорически

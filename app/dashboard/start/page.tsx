@@ -100,7 +100,6 @@ const OrderCalcSteps: React.FC<OrderCalcStepsProps> = ({ steps }) => {
 }
 
 const Page: React.FC = () => {
-  
   return (
     <main className="grid grid-cols-5 gap-2 h-screen px-2">
       {/* Sidebar */}

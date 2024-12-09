@@ -10,7 +10,7 @@ export async function GET() {
     //console.log('Data fetched successfully:', data) // Debug log
     return NextResponse.json(data)
   } catch (error) {
-    //console.error('Error fetching data from Google Sheets:', error)
+    console.error('Error fetching data from Google Sheets:', error)
     return NextResponse.json(
       { error: 'Failed to fetch data from Google Sheets' },
       { status: 500 }
