@@ -3,6 +3,8 @@ import { format, parse } from 'date-fns'
 
 import { TableRow, TableRowArraySchema } from './validation'
 
+type RawRow = [string, string, string, string, string, string, string, string]
+
 export const fetchTableData = async (range: {
   from: string
   to: string
@@ -18,7 +20,7 @@ export const fetchTableData = async (range: {
     const response = await fetch(url)
     const rawData = await response.json()
 
-    const transformedData = rawData.map((row: any[]) => {
+    const transformedData = rawData.map((row: RawRow) => {
       const parsedDate = parse(row[2]?.trim() || '', 'dd/MM/yyyy', new Date())
       const formattedDate = format(parsedDate, 'dd-MM-yyyy')
 

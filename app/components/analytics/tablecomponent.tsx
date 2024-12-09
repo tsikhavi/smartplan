@@ -2,6 +2,19 @@
 import React, { useState } from 'react'
 import { data } from './data'
 
+type TableRow = {
+  productName: string
+  group1: string
+  group2: string
+  group3: string
+  turnoverUnits: number
+  stockUnits: number
+  stockRub: number
+  stockDays: number
+  turnoverLastOrder: number
+  barcode: string
+}
+
 const columnNames = [
   { key: 'productName', label: 'Название товара' },
   { key: 'group1', label: 'Группа 1' },
@@ -15,7 +28,6 @@ const columnNames = [
   { key: 'barcode', label: 'Штрих код' },
 ]
 
-// Subset of columns to show buttons for
 const buttonColumns = [
   { key: 'productName', label: 'Название товара' },
   { key: 'group1', label: 'Группа 1' },
@@ -30,49 +42,52 @@ const TableComponent: React.FC = () => {
   )
 
   const [sortConfig, setSortConfig] = useState<{
-    key: string
+    key: keyof TableRow
     direction: 'asc' | 'desc'
   } | null>(null)
 
-  const toggleColumn = (columnKey: string) => {
+  const toggleColumn = (columnKey: keyof TableRow) => {
     setVisibleColumns((prev) => ({
       ...prev,
       [columnKey]: !prev[columnKey],
     }))
   }
 
-  const getFooterValue = (key: string) => {
+  const getFooterValue = (key: keyof TableRow) => {
     if (key === 'stockDays' || key === 'turnoverLastOrder') {
       const validEntries = data.filter((row) => typeof row[key] === 'number')
-      const total = validEntries.reduce((sum, row) => sum + (row[key] || 0), 0)
+      const total = validEntries.reduce(
+        (sum, row) => sum + (row[key] as number || 0),
+        0
+      )
       return validEntries.length > 0
         ? (total / validEntries.length).toFixed(2)
         : '—'
     }
     if (typeof data[0]?.[key] === 'number') {
-      return data.reduce((sum, row) => sum + (row[key] || 0), 0)
+      return data.reduce((sum, row) => sum + (row[key] as number || 0), 0)
     }
     return '—'
   }
 
-  const handleSort = (key: string) => {
+  const handleSort = (key: keyof TableRow) => {
     let direction: 'asc' | 'desc' = 'asc'
     if (sortConfig?.key === key && sortConfig?.direction === 'asc') {
       direction = 'desc'
     }
     setSortConfig({ key, direction })
 
-    // Sort the data based on the key and direction
     data.sort((a, b) => {
-      if (a[key] < b[key]) return direction === 'asc' ? -1 : 1
-      if (a[key] > b[key]) return direction === 'asc' ? 1 : -1
+      const aValue = a[key]
+      const bValue = b[key]
+      if (aValue < bValue) return direction === 'asc' ? -1 : 1
+      if (aValue > bValue) return direction === 'asc' ? 1 : -1
       return 0
     })
   }
 
   return (
     <div className="overflow-x-auto text-xs">
-      {/* Buttons for toggling columns */}
       <div className="space-x-1">
         {buttonColumns.map(({ key, label }) => (
           <button
@@ -82,14 +97,13 @@ const TableComponent: React.FC = () => {
                 ? 'bg-[#93DF6F] text-black'
                 : 'bg-gray-300 text-gray-700'
             }`}
-            onClick={() => toggleColumn(key)}
+            onClick={() => toggleColumn(key as keyof TableRow)}
           >
             {label}
           </button>
         ))}
       </div>
 
-      {/* Table */}
       <table className="border-collapse border border-gray-300 w-full">
         <thead>
           <tr className="bg-blue-300">
@@ -99,12 +113,12 @@ const TableComponent: React.FC = () => {
                   <th
                     key={key}
                     className="border border-gray-300 px-1 py-2 truncate cursor-pointer"
-                    onClick={() => handleSort(key)}
+                    onClick={() => handleSort(key as keyof TableRow)}
                   >
                     {label}
                     {sortConfig?.key === key && (
                       <span>
-                        {sortConfig?.direction === 'asc' ? ' ↑' : ' ↓'}
+                        {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
                       </span>
                     )}
                   </th>
@@ -122,7 +136,7 @@ const TableComponent: React.FC = () => {
                       key={key}
                       className="border border-gray-300 px-2 text-left truncate"
                     >
-                      {row[key as keyof typeof row]}
+                      {row[key as keyof TableRow]}
                     </td>
                   )
               )}
@@ -135,7 +149,7 @@ const TableComponent: React.FC = () => {
               ({ key }) =>
                 visibleColumns[key] && (
                   <td key={key} className="border border-gray-300 px-2 py-1">
-                    {key === 'productName' ? 'Общий итог' : getFooterValue(key)}
+                    {key === 'productName' ? 'Общий итог' : getFooterValue(key as keyof TableRow)}
                   </td>
                 )
             )}

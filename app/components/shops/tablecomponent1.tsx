@@ -40,7 +40,6 @@ const Draggable = ({
 
 const Droppable = ({
   id,
-  onDrop,
   children,
 }: {
   id: string

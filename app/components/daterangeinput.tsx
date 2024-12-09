@@ -52,11 +52,14 @@ export const DateRangeInput: React.FC<DateRangeInputProps> = ({ onChange }) => {
   return (
     <div className="relative text-sm">
       <div
-        className="flex items-center border border-gray-300 rounded-md py-0 px-2 bg-white text-gray-600 cursor-pointer"
+        className="flex items-center border border-[#404950] rounded-md py-0 px-2 bg-white text-gray-600 cursor-pointer"
         onClick={() => setShowPicker(!showPicker)}
       >
         {formattedRange}
+        
       </div>
+      
+      
 
       {showPicker && (
         <div className="absolute z-10 mt-2 text-sm bg-white text-black shadow-lg p-4 rounded-md">

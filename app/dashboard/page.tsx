@@ -1,6 +1,6 @@
 'use client'
 
-import { useContext, useState, useEffect, useRef } from 'react'
+import { useCallback, useContext, useState, useEffect, useRef } from 'react'
 import { TableDataContext } from './layout'
 import Loading from './loading'
 import { v4 as uuidv4 } from 'uuid'
@@ -109,21 +109,24 @@ export default function DashboardPage() {
     startX.current = event.clientX
   }
 
-  const handleMouseMove = (event: MouseEvent) => {
-    if (resizingColumn.current === null || startX.current === null) return
+  const handleMouseMove = useCallback(
+    (event: MouseEvent) => {
+      if (resizingColumn.current === null || startX.current === null) return
 
-    const deltaX = event.clientX - startX.current
-    const newWidths = [...columnWidths]
-    newWidths[resizingColumn.current] =
-      (newWidths[resizingColumn.current] || 40) + deltaX
-    newWidths[resizingColumn.current] = Math.max(
-      newWidths[resizingColumn.current],
-      30
-    )
-    setColumnWidths(newWidths)
+      const deltaX = event.clientX - startX.current
+      const newWidths = [...columnWidths]
+      newWidths[resizingColumn.current] =
+        (newWidths[resizingColumn.current] || 40) + deltaX
+      newWidths[resizingColumn.current] = Math.max(
+        newWidths[resizingColumn.current],
+        30
+      )
+      setColumnWidths(newWidths)
 
-    startX.current = event.clientX
-  }
+      startX.current = event.clientX
+    },
+    [columnWidths]
+  )
 
   const handleMouseUp = () => {
     resizingColumn.current = null
@@ -137,7 +140,7 @@ export default function DashboardPage() {
       document.removeEventListener('mousemove', handleMouseMove)
       document.removeEventListener('mouseup', handleMouseUp)
     }
-  }, [columnWidths])
+  }, [handleMouseMove, columnWidths])
 
   return (
     <div className="container mx-auto px-4 py-8 relative">
@@ -234,7 +237,7 @@ export default function DashboardPage() {
                       {Object.values(row).map((cell) => (
                         <td
                           key={uuidv4()}
-                          className="border border-gray-300 px-4 py-0 text-ellipsis overflow-hidden"
+                          className="border whitespace-nowrap border-gray-300 px-4 py-0 text-ellipsis overflow-hidden"
                         >
                           {cell}
                         </td>
@@ -244,8 +247,7 @@ export default function DashboardPage() {
                 </tbody>
               </table>
             </div>
-            <div className="sticky bottom-0 bg-gray-300 z-10 shadow border-t border-gray-300">
-              {/* Compute footerData before rendering footer rows */}
+            <div className="sticky bottom-0 bg-gray-100 z-10 shadow border-t border-gray-300">
               {(() => {
                 const footerData = headers.map((header) => {
                   const isNumericColumn = sortedData.every(
@@ -267,17 +269,10 @@ export default function DashboardPage() {
                       ? JSON.parse(storedDifference)
                       : null
                     if (typeof difference !== 'number') {
-                      console.warn(
-                        'Invalid value for "diapazon" in localStorage:',
-                        difference
-                      )
                       difference = null
                     }
                   } catch (error) {
-                    console.error(
-                      'Error reading "diapazon" from localStorage:',
-                      error
-                    )
+                    console.error('Выбираете диапазон сверху', error)
                   }
 
                   const columnAverage =
@@ -293,8 +288,8 @@ export default function DashboardPage() {
                   }
                 })
 
-                console.log('Footer Data:', footerData)
 
+                
                 return (
                   <table className="table-fixed border-collapse w-full text-xs text-left">
                     <tfoot>
@@ -305,7 +300,9 @@ export default function DashboardPage() {
                             key={`sum-${id}`}
                             className="border border-gray-300 px-4 py-2 font-semibold text-right"
                           >
-                            {sum !== null ? sum.toLocaleString('ru') : '—'}
+                            {sum !== null
+                              ? Math.round(sum).toLocaleString('ru')
+                              : '—'}
                           </td>
                         ))}
                       </tr>
@@ -317,7 +314,12 @@ export default function DashboardPage() {
                             key={`average-${id}`}
                             className="border border-gray-300 px-4 py-2 font-semibold text-right"
                           >
-                            {average !== null ? average.toLocaleString('ru') : '—'}
+                            {average !== null
+                              ? Number(average).toLocaleString('ru', {
+                                  minimumFractionDigits: 2,
+                                  maximumFractionDigits: 2,
+                                })
+                              : '—'}
                           </td>
                         ))}
                       </tr>

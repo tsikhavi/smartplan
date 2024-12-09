@@ -18,6 +18,7 @@ export const googleAuth = async () => {
     })
     return auth
   } catch (error) {
+    console.error(`${error} `)
     throw new Error('Failed to initialize Google Auth.')
   }
 }
@@ -44,6 +45,7 @@ export async function getSheetData(range: string): Promise<string[][]> {
 
     throw new Error('No data found in the specified range.')
   } catch (error) {
+    console.error(`${error} `)
     throw error instanceof Error
       ? new Error(`Failed to retrieve data: ${error.message}`)
       : new Error('Failed to retrieve data: Unknown error occurred.')

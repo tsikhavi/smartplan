@@ -9,6 +9,7 @@ import {
   useSensors,
   useSensor,
   useDroppable,
+  DragEndEvent,
 } from '@dnd-kit/core'
 import {
   arrayMove,
@@ -18,7 +19,7 @@ import {
 import DraggableItem from './DraggableItem'
 import { SortableItem } from './SortableItem'
 import { StatItem } from './storeData'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import AnimatedSection from '@app/app/components/animatedsection'
 
 import { CONTENT_STAT_ITEMS } from './storeData'
@@ -51,7 +52,7 @@ function DroppableWrapper({
 
 export default function MainContent({ stats }: MainContentProps) {
   const [items, setItems] = useState([...stats, ...CONTENT_STAT_ITEMS])
-  const [filteredItems, setFilteredItems] = useState(items) // Filtered list
+  const [filteredItems, setFilteredItems] = useState(items) 
   const [labels, setLabels] = useState<string[]>([])
 
   const [charts, setCharts] = useState([
@@ -94,46 +95,60 @@ export default function MainContent({ stats }: MainContentProps) {
       Math.round(baseValue * (0.8 + Math.random() * 0.4))
     )
 
-  const generateDateRange = (start: string, end: string): string[] => {
-    const startDate = new Date(start.split('.').reverse().join('-'))
-    const endDate = new Date(end.split('.').reverse().join('-'))
-    const dates: string[] = []
+    const generateDateRange = (start: string, end: string): string[] => {
+      const startDate = new Date(start.split('-').reverse().join('-'))
+      const endDate = new Date(end.split('-').reverse().join('-'))
+      const dates: string[] = []
+    
+      while (startDate <= endDate) {
+        const day = startDate.getDate().toString().padStart(2, '0')
+        const month = (startDate.getMonth() + 1).toString().padStart(2, '0')
+        const year = startDate.getFullYear()
+    
+        dates.push(`${day}-${month}-${year}`)
+    
+        startDate.setDate(startDate.getDate() + 1)
+      }
+    
+      return dates
+    }    
+    const fetchDateRange = useCallback(() => {
+    const storedDateRange = localStorage.getItem('dateRange');
+    
+    if (storedDateRange) {
+      const dateRange = JSON.parse(storedDateRange);
+  
+      const storedFirstDate = dateRange.from;
+      const storedLastDate = dateRange.to;
+  
+      
+  
+      const range = generateDateRange(storedFirstDate, storedLastDate);
 
-    while (startDate <= endDate) {
-      const day = startDate.getDate().toString().padStart(2, '0')
-      const month = (startDate.getMonth() + 1).toString().padStart(2, '0')
-      const year = startDate.getFullYear()
-      dates.push(`${day}.${month}.${year}`)
-      startDate.setDate(startDate.getDate() + 1)
+      setLabels((prevLabels) => {
+        if (JSON.stringify(prevLabels) !== JSON.stringify(range)) {
+          return range;
+        }
+        return prevLabels;
+      });
     }
-
-    return dates
-  }
-
-  const fetchDateRange = () => {
-    const storedLastDate = localStorage.getItem('selectedLastDate')
-    const storedFirstDate = localStorage.getItem('selectedFirstDate')
-    if (storedLastDate && storedFirstDate) {
-      const range = generateDateRange(storedFirstDate, storedLastDate)
-      setLabels(range)
-    }
-  }
-
+  }, []); 
+  
   useEffect(() => {
-    fetchDateRange()
-  }, [])
+    fetchDateRange();
+  }, [fetchDateRange]); 
+  
 
-  const handleDragEnd = (event: any) => {
-    const { active, over } = event
-
+  const handleDragEnd = (event: DragEndEvent)=> {
+    const { active, over } = event;
+  
     if (!active || !over) {
-      console.warn('Drag end event missing active or over elements')
-      return
+      return;
     }
-
-    const draggedItem = items.find((item) => item.id === active.id)
-    const droppedChart = charts.find((chart) => chart.id === over.id)
-
+  
+    const draggedItem = items.find((item) => item.id === active.id);
+    const droppedChart = charts.find((chart) => chart.id === over.id);
+  
     if (droppedChart && draggedItem) {
       setCharts((currentCharts) => {
         const updatedCharts = currentCharts.map((chart) =>
@@ -141,31 +156,35 @@ export default function MainContent({ stats }: MainContentProps) {
             ? {
                 ...chart,
                 title: draggedItem.description,
-                dataPoints: generateRandomPoints(
-                  draggedItem.value,
-                  labels.length
-                ),
+                dataPoints: generateRandomPoints(draggedItem.value, labels.length),
               }
             : chart
-        )
-
-        return updatedCharts
-      })
+        );
+        return updatedCharts;
+      });
     } else if (active.id !== over.id) {
-      setItems((currentItems: any[]) => {
-        const oldIndex = currentItems.findIndex(
-          (item: { id: any }) => item.id === active.id
-        )
-        const newIndex = currentItems.findIndex(
-          (item: { id: any }) => item.id === over.id
-        )
 
-        const reorderedItems = arrayMove(currentItems, oldIndex, newIndex)
+      
+      const oldIndex = items.findIndex((item) => item.id === active.id);
+      const newIndex = items.findIndex((item) => item.id === over.id);
+  
 
-        return reorderedItems
-      })
+      
+      if (oldIndex === -1 || newIndex === -1) {
+
+        return;
+      }
+  
+      const reorderedItems = arrayMove<StatItem>(items, oldIndex, newIndex);
+
+  
+
+      
+      setItems(reorderedItems);
+  
+  
     }
-  }
+  };
 
   const onFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value
@@ -190,8 +209,8 @@ export default function MainContent({ stats }: MainContentProps) {
           onDragEnd={handleDragEnd}
         >
           {/* Filter Select */}
-          <div className="mb-4">
-            <select onChange={onFilterChange} className="border p-2 rounded">
+          <div className="mb-4 w-full">
+            <select onChange={onFilterChange} className="border p-2 rounded float-right">
               <option value="Общие">Общие</option>
               <option value="Средний">Средний</option>
             </select>
@@ -199,7 +218,7 @@ export default function MainContent({ stats }: MainContentProps) {
 
           {/* Draggable List for First 12 Items */}
           <SortableContext
-            items={first12Items.map((item: { id: any }) => item.id)}
+            items={first12Items.map((item: StatItem) => item.id)}
             strategy={verticalListSortingStrategy}
           >
             <div className="grid grid-cols-6 gap-2 mt-1 ml-2 relative z-10">
@@ -221,14 +240,13 @@ export default function MainContent({ stats }: MainContentProps) {
               ))}
             </div>
           </SortableContext>
-          {/* Draggable List for Remaining Items */}
 
           <DateDisplay />
 
           <section className="grid grid-cols-4 gap-4 ml-0 mt-0 w-full">
             <div className="col-span-2 mt-2 ml-2">
-              <SortableContext
-                items={remainingItems.map((item: { id: any }) => item.id)}
+            <SortableContext items={remainingItems.map((item: StatItem) => item.id)}
+
                 strategy={verticalListSortingStrategy}
               >
                 <div className="flex flex-wrap gap-2">
@@ -280,3 +298,5 @@ export default function MainContent({ stats }: MainContentProps) {
     </section>
   )
 }
+
+

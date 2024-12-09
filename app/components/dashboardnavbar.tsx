@@ -34,6 +34,7 @@ export default function DashboardNavbar({
     const difference = calculateDateDifference(range.from, range.to)
     if (difference !== null) {
       console.log(`Диапазон ${difference}`)
+      console.log(` ${dateRange} `)
     } else {
       console.log(
         'Не удалось рассчитать количество дней: неверный диапазон дат.'
@@ -75,12 +76,15 @@ export default function DashboardNavbar({
           <p className="text-xs text-white ml-8 mr-2">Период данных</p>
           <DateRangeInput onChange={handleDateChange} />
           <Image
-            src="/Calendar_Days.svg"
-            alt="Период"
-            width={6}
-            height={6}
-            className="object-cover w-fit mx-auto h-fit"
-          />
+              aria-hidden
+              src="/Calendar_Days.svg"
+              alt="Settings Icon"
+              width={12}
+              height={12}
+              className="inline-flex w-auto h-auto "
+            />
+          
+          
         </div>
 
         {/* Right Section: Navbar Items */}
@@ -98,6 +102,7 @@ export default function DashboardNavbar({
               height={12}
               className="inline-flex w-auto h-auto"
             />
+
           </Link>
           <Link href="/">
             <Image
